@@ -1,0 +1,14 @@
+{
+  "name": "GoGoAnime Improver",
+  "description": "Swaps out a section of GoGoAnime to make it better",
+  "version": "1.0",
+  "manifest_version": 3,
+  "content_scripts": [
+    {
+      "matches": ["https://gogoanimeapp.com/"],
+      "js": ["injection.js"],
+      "css": ["pagination.css"]
+    }
+  ],
+  "icons": { "32": "favicon.png" }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "better-gogoanime-server",
+  "version": "1.0.0",
+  "main": "main.js",
+  "author": "Gregor Maclaine",
+  "license": "MIT",
+  "scripts": {
+    "start": "node main.js",
+    "dev": "nodemon main.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.3",
+    "node-fetch": "2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
