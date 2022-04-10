@@ -6,8 +6,12 @@
   "content_scripts": [
     {
       "matches": ["https://gogoanimeapp.com/"],
-      "js": ["injection.js"],
-      "css": ["pagination.css"]
+      "js": [
+        "js/create_iframe.js",
+        "js/create_pagination.js",
+        "js/create_blacklist_toggle.js"
+      ],
+      "css": ["css/pagination.css", "css/blacklist_toggle.css"]
     }
   ],
   "icons": { "32": "favicon.png" }
