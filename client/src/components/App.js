@@ -13,7 +13,7 @@ const AnimeList = styled.ul`
 `;
 
 function App() {
-  const { blacklist_item, is_anime_blacklisted } = useAnimePreferences();
+  const { blacklist_item, unblacklist_item, is_anime_blacklisted } = useAnimePreferences();
 
   const { anime_to_show, change_page, set_show_blacklisted_anime } = useAnimeItemsState({ is_anime_blacklisted });
 
@@ -23,7 +23,13 @@ function App() {
     <div>
       <AnimeList>
         {anime_to_show.map(item => (
-          <AnimeItem {...item} blacklist_item={blacklist_item} key={item.urlpath} />
+          <AnimeItem
+            {...item}
+            key={item.urlpath}
+            blacklist_item={blacklist_item}
+            unblacklist_item={unblacklist_item}
+            blacklisted={is_anime_blacklisted(item.name)}
+          />
         ))}
       </AnimeList>
     </div>

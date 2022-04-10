@@ -1,7 +1,8 @@
 import styled from 'styled-components';
 import cross_icon_img from '../img/cross.svg';
+import tick_icon_img from '../img/tick.svg';
 
-const CrossIcon = styled.img`
+const Icon = styled.img`
   display: none;
   position: absolute;
   height: 30px;
@@ -29,10 +30,11 @@ const AnimeItemWrapper = styled.li`
   list-style: none;
   margin-bottom: 20px;
   vertical-align: top;
+  ${props => props.blacklisted ? 'background-color: #3B1B1B;' : ''}
 
   &:nth-child(4n+1) { margin-left: 0; }
 
-  &:hover > ${CrossIcon} {
+  &:hover > ${Icon} {
     display: block;
     opacity: 0.4;
   }
@@ -80,13 +82,22 @@ const ImportedAnimeItem = styled.div`
   }
 `;
 
-function AnimeItem({ name, episode, urlpath, html, blacklist_item }) {
-    return (
-        <AnimeItemWrapper key={urlpath}>
-            <ImportedAnimeItem dangerouslySetInnerHTML={{ __html: html }} />
-            <CrossIcon src={cross_icon_img} alt={'Blacklist ' + name} onClick={() => blacklist_item(name)}/>
-        </AnimeItemWrapper>
-    );
+function AnimeItem({ name, episode, urlpath, html, blacklisted, blacklist_item, unblacklist_item }) {
+  function onClick() {
+    if (blacklisted) unblacklist_item(name);
+    else blacklist_item(name);
+  }
+
+  return (
+    <AnimeItemWrapper key={urlpath} blacklisted={blacklisted}>
+      <ImportedAnimeItem dangerouslySetInnerHTML={{ __html: html }} />
+      <Icon
+        onClick={onClick}
+        src={blacklisted ? tick_icon_img : cross_icon_img}
+        alt={`${blacklisted ? 'White' : 'Black'}list ${name}`}
+      />
+    </AnimeItemWrapper>
+  );
 }
 
 export default AnimeItem;
