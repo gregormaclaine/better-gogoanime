@@ -1,5 +1,7 @@
+import { SERVER_ADDRESS } from '../config';
+
 export default async function get_items(page) {
-    const url = 'http://localhost:1000/page/' + page;
+    const url = `${SERVER_ADDRESS}/page/${page}`;
     const res = await fetch(url);
     if (!res.ok) return console.error('Couldn\'t fetch page data for page', page);
 
