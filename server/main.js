@@ -14,8 +14,8 @@ app.get('/page/:page', async (req, res) => {
     const page = await fetch(get_url(parseInt(req.params.page)));
     const text = await page.text();
     res.send(text);
-})
+});
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
-})
+});
