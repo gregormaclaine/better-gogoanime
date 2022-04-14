@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import get_anime_items from './get_anime_content';
 
-const remove_duplicates = arr => arr.reduce((acc, cur) => {
-    if (acc.findIndex(item => item.urlpath === cur.urlpath) === -1) acc.push(cur);
+const handle_duplicates = arr => arr.reduce((acc, cur) => {
+    if (acc.unique.findIndex(item => item.urlpath === cur.urlpath) === -1) acc.unique.push(cur);
+    else acc.had_dups = true;
     return acc;
-}, []);
+}, { unique: [], had_dups: false });
 
 export default function useAnimeItemsState({ is_anime_blacklisted }) {
     const [current_page, change_page] = useState(1);
@@ -15,61 +16,55 @@ export default function useAnimeItemsState({ is_anime_blacklisted }) {
     const filtered_anime = show_blacklisted_anime ? anime_items : anime_items.filter(a => !is_anime_blacklisted(a.name));
     const anime_to_show = filtered_anime.slice(20 * (current_page - 1), 20 * current_page);
 
-    // If there is not enough anime to show, get the next lot
-    useEffect(() => {
-        const fetch_data = async page => {
+    // Gets the first page of results and checks to see if it overlaps with the current items
+    // If it does then remove duplicates and update the state
+    // If it doesn't get next page recursively until it does overlap
+    const fetch_data_start = useCallback(async (page, accumulate) => {
+        if (!page) {
+            page = 1;
+            accumulate = [];
             set_fetch_status({ ...fetch_status, status: 'fetching' });
-            const new_page_items = await get_anime_items(page);
-            set_anime_items([...anime_items, ...new_page_items]);
-            set_fetch_status({ pages_done: page, status: 'idle' });
         }
 
-        if (anime_to_show.length < 20 && fetch_status.status === 'idle') {
-            fetch_data(fetch_status.pages_done + 1);
+        const new_items = await get_anime_items(page);
+        const { unique, had_dups } = handle_duplicates([...new_items, ...anime_items]);
+
+        if (had_dups) {
+            set_anime_items([...accumulate, ...unique]);
+            set_fetch_status({ ...fetch_status, status: 'idle' });
+        } else {
+            fetch_data_start(page + 1, [...accumulate, ...new_items]);
         }
+        
+    }, [fetch_status, anime_items]);
 
-    }, [anime_items, anime_to_show, fetch_status]);
-
-    // Remove duplicate anime items (And if there are duplicates, send request for page 1 again)
-    useEffect(() => {
-        if (fetch_status.status === 'fetching') return;
-        const unique_anime = remove_duplicates(anime_items);
-    
-        if (unique_anime.length !== anime_items.length) {
-            // If there are duplicate items, then it probably means a new item
-            // has appeared on the first page and pushed everything along an index.
-            // Therefore this gets the first page and puts it at the start (and filters
-            // the items array again to remove duplicates).
-            async function func() {
-                set_fetch_status({ ...fetch_status, status: 'fetching' });
-
-                const page_1_items = await get_anime_items(1);
-                const aggregate_items = remove_duplicates([...page_1_items, ...anime_items]);
-
-                set_anime_items(aggregate_items);
-                set_fetch_status({ ...fetch_status, status: 'idle' });
-            }
-
-            func();
-        }
-    }, [anime_items, fetch_status]);
-
-    async function refresh() {
+    // Get the last page of data and append it to end of state
+    // If duplicates, then a new item probably push all items along one.
+    // Therefore recheck the first page with the fetch_data_start function.
+    const fetch_data_end = useCallback(async () => {
         set_fetch_status({ ...fetch_status, status: 'fetching' });
 
-        const page_1_items = await get_anime_items(1);
-        const aggregate_items = remove_duplicates([...page_1_items, ...anime_items]);
+        const new_page = fetch_status.pages_done + 1;
+        const new_items = await get_anime_items(new_page);
+        const { unique, had_dups } = handle_duplicates([...anime_items, ...new_items]);
 
-        set_anime_items(aggregate_items);
-        set_fetch_status({ ...fetch_status, status: 'idle' });
-    }
+        set_anime_items(unique);
+        if (had_dups) fetch_data_start(1, []);
+        set_fetch_status({ pages_done: new_page, status: had_dups ? 'fetching' : 'idle' });
+
+    }, [fetch_data_start, fetch_status, anime_items]);
+
+    // If there is not enough anime to show, get the next lot
+    useEffect(() => {
+        if (anime_to_show.length < 20 && fetch_status.status === 'idle') fetch_data_end()
+    }, [anime_to_show, fetch_status, fetch_data_end]);
 
     const is_refreshing = fetch_status.status === 'fetching';
 
     return {
         change_page,
         set_show_blacklisted_anime,
-        refresh,
+        refresh: () => fetch_data_start(),
         is_refreshing,
         anime_to_show: is_refreshing ? anime_to_show.slice(0, 19) : anime_to_show
     };
