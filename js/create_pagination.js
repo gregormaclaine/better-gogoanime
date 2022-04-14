@@ -21,7 +21,7 @@
         }
 
         spanEl.addEventListener('click', e => {
-            iframeEl.contentWindow?.postMessage('change-page-to-' + i, '*');
+            send_message_to_injected_iframe('change-page', i);
 
             if (current_selected) current_selected.classList.remove('selected');
             spanEl.classList.add('selected');

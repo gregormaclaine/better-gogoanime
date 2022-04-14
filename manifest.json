@@ -8,6 +8,7 @@
       "matches": ["https://gogoanimeapp.com/"],
       "js": [
         "js/create_iframe.js",
+        "js/iframe_messaging.js",
         "js/create_pagination.js",
         "js/create_blacklist_toggle.js",
         "js/create_refresh_button.js"

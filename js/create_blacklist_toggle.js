@@ -24,7 +24,7 @@
 
         }
 
-        iframeEl.contentWindow?.postMessage('set-show-blacklisted:' + Number(are_blacklisted_showing), '*');
+        send_message_to_injected_iframe('toggle-blacklist', are_blacklisted_showing)
     }
 
     divEl.addEventListener('click', toggle);

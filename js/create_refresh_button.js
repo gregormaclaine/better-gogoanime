@@ -9,7 +9,7 @@
     divEl.innerText = 'Refresh';
 
     function onClick() {
-        iframeEl.contentWindow?.postMessage('refresh-anime-items', '*');
+        send_message_to_injected_iframe('refresh');
     }
 
     divEl.addEventListener('click', onClick);

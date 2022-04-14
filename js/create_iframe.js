@@ -7,7 +7,7 @@
     container.appendChild(iframeEl);
     iframeEl.id = 'injected-augmented-iframe';
 
-    iframeEl.src = 'https://better-gogoanime-injection.netlify.app/';
+    iframeEl.src = 'https://better-gogoanime-injection.netlify.app/' && 'http://localhost:3000';
     iframeEl.sandbox = 'allow-scripts';
 
     iframeEl.style.width = '726px';
@@ -15,14 +15,12 @@
     iframeEl.style.overflow = 'hidden';
 
     window.addEventListener('message', e => {
-        if (typeof e.data === 'string' && e.data.startsWith('height-')) {
-            iframeEl.style.height = e.data.split('height-')[1];
-        }
+        if (e.data.action === 'set-height') iframeEl.style.height = e.data.height;
     });
 
     iframeEl.addEventListener('load', () => {    
         setInterval(() => {
-            iframeEl.contentWindow?.postMessage('this-is-god-please-send-your-height', '*');
+            send_message_to_injected_iframe('send-height');
         }, 500);
     });
 })();
