@@ -25,7 +25,7 @@ function App() {
   return (
     <div>
       <AnimeList>
-        {is_refreshing && <RefreshItem />}
+        <RefreshItem hidden={!is_refreshing} />
         {anime_to_show.map(item => (
           <AnimeItem
             {...item}

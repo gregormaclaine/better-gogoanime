@@ -1,3 +1,4 @@
+import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import refresh_icon from '../img/refresh.png';
 
@@ -10,6 +11,8 @@ const ItemWrapper = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+
+    ${props => props.hidden ? 'visbility: hidden; position: absolute;' : ''}
 `;
 
 const RotateAnimation = keyframes`
@@ -23,13 +26,13 @@ const RefreshIcon = styled.img`
     animation: ${RotateAnimation} 2s linear infinite;
 `;
 
-function AnimeItem() {
+const RefreshItem = React.memo(({ hidden }) => {
     return (
-        <ItemWrapper>
+        <ItemWrapper hidden={hidden}>
             <RefreshIcon src={refresh_icon} />
         </ItemWrapper>
     );
-}
+});
 
-export default AnimeItem;
+export default RefreshItem;
   
