@@ -7,7 +7,7 @@
     container.appendChild(iframeEl);
     iframeEl.id = 'injected-augmented-iframe';
 
-    iframeEl.src = 'https://better-gogoanime-injection.netlify.app/' && 'http://localhost:3000';
+    iframeEl.src = 'https://better-gogoanime-injection.netlify.app/' || 'http://localhost:3000';
     iframeEl.sandbox = 'allow-scripts';
 
     iframeEl.style.width = '726px';
