@@ -16,6 +16,8 @@ export default async function get_items(page) {
         [...itemEl.querySelectorAll('a')].forEach(el => {
             el.href = 'https://gogoanimeapp.com/' + urlpath;
         });
+
+        itemEl.querySelector('div.img > div.type').remove();
         
         return {
             name: namelinkEl.innerText,
