@@ -21,18 +21,12 @@ const Icon = styled.img`
   }
 `;
 
-const AnimeItemWrapper = styled.li`
-  float: left;
+const AnimeItemWrapper = styled.div`
   position: relative;
-  margin-left: 1.8867%;
   width: 23.5849%;
   text-align: center;
-  list-style: none;
   margin-bottom: 20px;
-  vertical-align: top;
   ${props => props.blacklisted ? 'background-color: #3B1B1B;' : ''}
-
-  &:nth-child(4n+1) { margin-left: 0; }
 
   &:hover > ${Icon} {
     display: block;
@@ -89,7 +83,7 @@ function AnimeItem({ name, episode, urlpath, html, blacklisted, blacklist_item, 
   }
 
   return (
-    <AnimeItemWrapper key={urlpath} blacklisted={blacklisted}>
+    <AnimeItemWrapper blacklisted={blacklisted}>
       <ImportedAnimeItem dangerouslySetInnerHTML={{ __html: html }} />
       <Icon
         onClick={onClick}

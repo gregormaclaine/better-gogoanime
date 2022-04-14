@@ -4,7 +4,7 @@ import get_anime_items from './get_anime_content';
 const remove_duplicates = arr => arr.reduce((acc, cur) => {
     if (acc.findIndex(item => item.urlpath === cur.urlpath) === -1) acc.push(cur);
     return acc;
-  }, []);
+}, []);
 
 export default function useAnimeItemsState({ is_anime_blacklisted }) {
     const [current_page, change_page] = useState(1);
@@ -54,5 +54,23 @@ export default function useAnimeItemsState({ is_anime_blacklisted }) {
         }
     }, [anime_items, fetch_status]);
 
-    return { anime_to_show, change_page, set_show_blacklisted_anime };
+    async function refresh() {
+        set_fetch_status({ ...fetch_status, status: 'fetching' });
+
+        const page_1_items = await get_anime_items(1);
+        const aggregate_items = remove_duplicates([...page_1_items, ...anime_items]);
+
+        set_anime_items(aggregate_items);
+        set_fetch_status({ ...fetch_status, status: 'idle' });
+    }
+
+    const is_refreshing = fetch_status.status === 'fetching';
+
+    return {
+        change_page,
+        set_show_blacklisted_anime,
+        refresh,
+        is_refreshing,
+        anime_to_show: is_refreshing ? anime_to_show.slice(0, 19) : anime_to_show
+    };
 }
