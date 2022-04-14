@@ -11,6 +11,7 @@
     iframeEl.sandbox = 'allow-scripts';
 
     iframeEl.style.width = '726px';
+    iframeEl.style.minHeight = '300px';
     iframeEl.style.borderWidth = '0px';
     iframeEl.style.overflow = 'hidden';
 
