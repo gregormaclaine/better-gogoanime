@@ -12,12 +12,23 @@ function get_url(page) {
 
 app.get('/', (req, res) => {
     res.send('Better GoGoAnime - Server');
-})
+});
 
 app.get('/page/:page', async (req, res) => {
     const page = await fetch(get_url(parseInt(req.params.page)));
     const text = await page.text();
     res.send(text);
+});
+
+app.get('/img/:imgurl', async (req, res) => {
+    try {
+        const page = await fetch(req.params.imgurl);
+        const text = await page.text();
+        res.send(text);
+    } catch {
+        console.error('Couldn\'t fetch img');
+        res.send('');
+    }
 });
 
 app.listen(PORT, () => {
