@@ -1,13 +1,21 @@
-import { SERVER_ADDRESS } from '../config';
+// import { SERVER_ADDRESS } from '../config';
 
 export default async function get_items(page) {
-    const url = `${SERVER_ADDRESS}/page/${page}`;
-    const res = await fetch(url);
-    if (!res.ok) return console.error('Couldn\'t fetch page data for page', page);
+    // const url = `${SERVER_ADDRESS}/page/${page}`;
+    // const res = await fetch(url);
+    // if (!res.ok) return console.error('Couldn\'t fetch page data for page', page);
+
+    const res = await fetch(`https://gogoanimeapp.com/page-recent-release.html?page=${page}&type=1`)
 
     const el = document.createElement('div');
     el.innerHTML = await res.text();
     const listEl = el.querySelector('ul.items');
+
+    if (!listEl) {
+        console.warn('Caught Error: Couldn\'t get anime content');
+        console.warn('\tResponse Content:', el.innerHTML);
+        return [];
+    }
 
     const list_items = [...listEl.children].map(itemEl => {
         const namelinkEl = itemEl.querySelector('p.name > a');
