@@ -18,10 +18,4 @@
     window.addEventListener('message', e => {
         if (e.data.action === 'set-height') iframeEl.style.height = e.data.height;
     });
-
-    iframeEl.addEventListener('load', () => {    
-        setInterval(() => {
-            send_message_to_injected_iframe('send-height');
-        }, 500);
-    });
 })();
