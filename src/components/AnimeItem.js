@@ -38,6 +38,7 @@ const ImportedAnimeItem = styled.div`
   & > .img {
     height: 230px;
     overflow: hidden;
+    background-color: #1b1b1b;
 
     & div.type { display: none; }
 
