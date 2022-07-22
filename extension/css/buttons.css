@@ -1,0 +1,28 @@
+div.injected-blacklist-toggle, div.injected-refresh-button {
+    position: absolute;
+    top: 50%;
+    height: 60%;
+    transform: translateY(-50%);
+
+    border-radius: 5px;
+    padding: 4px 10px;
+    border: 1px solid #785700;
+    font-weight: bold;
+    color: rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+    font-family: mySecondFont;
+}
+
+/* Positioning */
+div.injected-blacklist-toggle { right: 30%; }
+div.injected-refresh-button   { right: 50%; }
+
+/* Blacklist Colours */
+div.injected-blacklist-toggle                        { background-color: #64C564; }
+div.injected-blacklist-toggle:hover                  { background-color: #44b744; }
+div.injected-blacklist-toggle.show-blacklisted       { background-color: #C76666; }
+div.injected-blacklist-toggle.show-blacklisted:hover { background-color: #ba4444; }
+
+/* Refrsh Colours */
+div.injected-refresh-button       { background-color: #24a0ed; }
+div.injected-refresh-button:hover { background-color: #118ad6; }
