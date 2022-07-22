@@ -11,7 +11,12 @@ const Icon = styled.img`
   right: 5px;
   cursor: pointer;
 
-  background: radial-gradient(circle, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%, rgba(0,0,0,0) 100%);
+  background: radial-gradient(
+    circle,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0) 80%,
+    rgba(0, 0, 0, 0) 100%
+  );
   border-radius: 50%;
   padding: 1px;
 
@@ -26,7 +31,7 @@ const AnimeItemWrapper = styled.div`
   width: 23.5849%;
   text-align: center;
   margin-bottom: 20px;
-  ${props => props.blacklisted ? 'background-color: #3B1B1B;' : ''}
+  ${props => (props.blacklisted ? 'background-color: #3B1B1B;' : '')}
 
   &:hover > ${Icon} {
     display: block;
@@ -40,7 +45,9 @@ const ImportedAnimeItem = styled.div`
     overflow: hidden;
     background-color: #1b1b1b;
 
-    & div.type { display: none; }
+    & div.type {
+      display: none;
+    }
 
     & > a {
       width: 100%;
@@ -77,7 +84,15 @@ const ImportedAnimeItem = styled.div`
   }
 `;
 
-function AnimeItem({ name, episode, urlpath, html, blacklisted, blacklist_item, unblacklist_item }) {
+function AnimeItem({
+  name,
+  episode,
+  urlpath,
+  html,
+  blacklisted,
+  blacklist_item,
+  unblacklist_item
+}) {
   function onClick() {
     if (blacklisted) unblacklist_item(name);
     else blacklist_item(name);
