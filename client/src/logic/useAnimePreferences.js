@@ -1,27 +1,62 @@
 import { useState } from 'react';
 
-export default function useAnimePreferences() {
-  const ITEM_KEY = 'gogoanime-preferences';
-  const get_cached_preferences = () =>
-    JSON.parse(localStorage.getItem(ITEM_KEY) || '[]');
+function hashCode(str) {
+  var hash = 0,
+    i,
+    chr;
+  if (str.length === 0) return hash;
+  for (i = 0; i < str.length; i++) {
+    chr = str.charCodeAt(i);
+    hash = (hash << 5) - hash + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+}
 
-  const [preferences, set_preferences] = useState(get_cached_preferences());
+function hash_anime(name) {
+  if (/(E|e)pisode [0-9-]+$/.test(name)) {
+    name = name.split(' ').slice(0, -2).join(' ');
+  }
+  return hashCode(name);
+}
+
+function get_cached_preferences(key) {
+  let cache = localStorage.getItem(key);
+  if (cache) return JSON.parse(cache);
+
+  // Account for previous version
+  cache = localStorage.getItem('gogoanime-preferences');
+  if (!cache) return [];
+  cache = JSON.parse(cache);
+  cache = [...new Set(cache.map(a => hash_anime(a)))];
+  localStorage.setItem('gogoanime-preferences-hash', JSON.stringify(cache));
+  return cache;
+}
+
+export default function useAnimePreferences() {
+  const ITEM_KEY = 'gogoanime-preferences-hash';
+
+  const [preferences, set_preferences] = useState(
+    get_cached_preferences(ITEM_KEY)
+  );
 
   function blacklist_item(item) {
     if (is_anime_blacklisted(item)) return;
-    localStorage.setItem(ITEM_KEY, JSON.stringify([...preferences, item]));
-    set_preferences([...preferences, item]);
+    const hash = hash_anime(item);
+    localStorage.setItem(ITEM_KEY, JSON.stringify([...preferences, hash]));
+    set_preferences([...preferences, hash]);
   }
 
   function unblacklist_item(item) {
     if (!is_anime_blacklisted(item)) return;
-    const new_preferences = preferences.filter(p => p !== item);
+    const hash = hash_anime(item);
+    const new_preferences = preferences.filter(p => p !== hash);
     localStorage.setItem(ITEM_KEY, JSON.stringify(new_preferences));
     set_preferences(new_preferences);
   }
 
   function is_anime_blacklisted(item) {
-    return preferences.includes(item);
+    return preferences.includes(hash_anime(item));
   }
 
   return {
