@@ -29,7 +29,12 @@ function App() {
     is_refreshing
   } = useAnimeItemsState({ is_anime_blacklisted });
 
-  useIFrameMessenging({ change_page, set_show_blacklisted_anime, refresh });
+  useIFrameMessenging({
+    change_page,
+    set_show_blacklisted_anime,
+    refresh,
+    is_anime_blacklisted
+  });
 
   useEffect(() => {
     if (!window.parent) return;
