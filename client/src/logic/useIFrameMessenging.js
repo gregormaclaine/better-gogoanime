@@ -12,7 +12,13 @@ export default function useIFrameMessenging({
 
   useIFrameMessage('refresh', refresh);
 
-  useIFrameMessage('filter-show-names', (list, reply) =>
-    reply(list.map(is_anime_blacklisted))
+  useIFrameMessage('get-blacklist-info', (list, reply) =>
+    reply({
+      action: 'get-blacklist-info-reply',
+      info: list.reduce(
+        (acc, cur) => ({ ...acc, [cur]: is_anime_blacklisted(cur) }),
+        {}
+      )
+    })
   );
 }
