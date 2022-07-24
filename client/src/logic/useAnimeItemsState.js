@@ -82,17 +82,18 @@ export default function useAnimeItemsState({ is_anime_blacklisted }) {
     ]);
 
     set_anime_items(unique);
-    if (had_dups) fetch_data_start(1, []);
     set_fetch_status({
       pages_done: new_page,
       status: had_dups ? 'fetching' : 'idle'
     });
+    if (had_dups) fetch_data_start(1, []);
   }, [fetch_data_start, fetch_status, anime_items]);
 
   // If there is not enough anime to show, get the next lot
   useEffect(() => {
-    if (anime_to_show.length < 20 && fetch_status.status === 'idle')
+    if (anime_to_show.length < 20 && fetch_status.status === 'idle') {
       fetch_data_end();
+    }
   }, [anime_to_show, fetch_status, fetch_data_end]);
 
   const is_refreshing = fetch_status.status === 'fetching';
