@@ -42,11 +42,20 @@ export default function useAnimeItemsState({ is_anime_blacklisted }) {
         set_fetch_status({ ...fetch_status, status: 'fetching' });
       }
 
-      const new_items = await get_anime_items(page);
+      const new_items = await get_anime_items(page, true);
+
+      // If api returns null then it is currently fetching and fetch should be cancelled
+      if (!new_items) {
+        set_fetch_status({ ...fetch_status, status: 'idle' });
+        return;
+      }
+
+      // If api returned empty array then something went wrong
       if (!new_items.length) {
         set_fetch_status({ ...fetch_status, status: 'error' });
         return;
       }
+
       const { unique, had_dups } = handle_duplicates([
         ...new_items,
         ...anime_items
@@ -72,6 +81,14 @@ export default function useAnimeItemsState({ is_anime_blacklisted }) {
 
     const new_page = fetch_status.pages_done + 1;
     const new_items = await get_anime_items(new_page);
+
+    // If api returns null then it is currently fetching and fetch should be cancelled
+    if (!new_items) {
+      set_fetch_status({ ...fetch_status, status: 'idle' });
+      return;
+    }
+
+    // If api returned empty array then something went wrong
     if (!new_items.length) {
       set_fetch_status({ ...fetch_status, status: 'error' });
       return;

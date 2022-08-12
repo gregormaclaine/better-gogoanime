@@ -1,10 +1,4 @@
-// import { SERVER_ADDRESS } from '../config';
-
-export default async function get_items(page) {
-  // const url = `${SERVER_ADDRESS}/page/${page}`;
-  // const res = await fetch(url);
-  // if (!res.ok) return console.error('Couldn\'t fetch page data for page', page);
-
+async function get_items(page) {
   const res = await fetch(
     `https://gogoanimeapp.com/page-recent-release.html?page=${page}&type=1`
   );
@@ -43,3 +37,28 @@ export default async function get_items(page) {
 
   return list_items;
 }
+
+const CACHE_TIME = 1000 * 60;
+const cache = {};
+
+async function cached_get_items(page, force = false) {
+  const { time, data } = cache[page] || {};
+
+  if (!force && time && new Date() - time < CACHE_TIME) return data;
+
+  const result = await get_items(page);
+  cache[page] = { data: result, time: new Date() };
+  return result;
+}
+
+let fetching = false;
+
+async function single_runner(...args) {
+  if (fetching) return null;
+  fetching = true;
+  const result = await cached_get_items(...args);
+  fetching = false;
+  return result;
+}
+
+export default single_runner;

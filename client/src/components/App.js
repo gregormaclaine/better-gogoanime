@@ -1,11 +1,11 @@
+import { useEffect } from 'react';
 import styled from 'styled-components';
+import useAnimeItemsState from '../logic/useAnimeItemsState';
+import useAnimePreferences from '../logic/useAnimePreferences';
+import useHotKeyListeners from '../logic/useHotKeyListeners';
+import useIFrameMessenging from '../logic/useIFrameMessenging';
 import AnimeItem from './AnimeItem';
 import RefreshItem from './RefreshItem';
-import useIFrameMessenging from '../logic/useIFrameMessenging';
-import useAnimePreferences from '../logic/useAnimePreferences';
-import useAnimeItemsState from '../logic/useAnimeItemsState';
-import useHotKeyListeners from '../logic/useHotKeyListeners';
-import { useEffect } from 'react';
 
 const AnimeList = styled.div`
   width: 726px;
