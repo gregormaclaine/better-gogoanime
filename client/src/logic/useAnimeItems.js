@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import get_anime_items from './get_anime_content';
 
 const handle_duplicates = (...arr) =>
@@ -103,10 +103,7 @@ export default function useAnimeItems() {
   const [items, set_items] = useState([]);
   const [next_page, set_next_page] = useState(1);
   const [error, set_error] = useState(null);
-
-  const fetchingRef = useRef(false);
-  const fetching = fetchingRef.current;
-  const set_fetching = v => (fetchingRef.current = v);
+  const [fetching, set_fetching] = useState(false);
 
   async function refresh() {
     try {

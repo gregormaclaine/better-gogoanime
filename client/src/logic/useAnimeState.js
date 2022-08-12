@@ -21,7 +21,7 @@ export default function useAnimeState({ is_anime_blacklisted }) {
     if (anime_to_show.length < 20 && !fetching) {
       fetch_more();
     }
-  }, [anime_to_show.length, fetching]);
+  }, [anime_to_show.length, fetching, fetch_more]);
 
   return {
     change_page,
