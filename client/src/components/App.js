@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import styled from 'styled-components';
-import useAnimeItemsState from '../logic/useAnimeItemsState';
 import useAnimePreferences from '../logic/useAnimePreferences';
+import useAnimeState from '../logic/useAnimeState';
 import useHotKeyListeners from '../logic/useHotKeyListeners';
 import useIFrameMessenging from '../logic/useIFrameMessenging';
 import AnimeItem from './AnimeItem';
@@ -23,12 +23,12 @@ function App() {
 
   const {
     anime_to_show,
-    fetch_status,
+    error,
     change_page,
     set_show_blacklisted_anime,
     refresh,
     is_refreshing
-  } = useAnimeItemsState({ is_anime_blacklisted });
+  } = useAnimeState({ is_anime_blacklisted });
 
   useIFrameMessenging({
     change_page,
@@ -55,9 +55,7 @@ function App() {
 
   return (
     <div>
-      {fetch_status === 'error' && (
-        <p style={{ color: 'red' }}>An error has occured</p>
-      )}
+      {error && <p style={{ color: 'red' }}>An error has occured: {error}</p>}
       <AnimeList>
         <RefreshItem hidden={!is_refreshing} />
         {anime_to_show.map(item => (
