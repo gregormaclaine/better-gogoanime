@@ -11,7 +11,8 @@
         "js/iframe_messaging.js",
         "js/create_pagination.js",
         "js/create_blacklist_toggle.js",
-        "js/create_refresh_button.js"
+        "js/create_refresh_button.js",
+        "js/edit_sidebar.js"
       ],
       "css": ["css/pagination.css", "css/buttons.css"]
     }
