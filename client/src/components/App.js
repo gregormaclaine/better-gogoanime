@@ -4,6 +4,7 @@ import RefreshItem from './RefreshItem';
 import useIFrameMessenging from '../logic/useIFrameMessenging';
 import useAnimePreferences from '../logic/useAnimePreferences';
 import useAnimeItemsState from '../logic/useAnimeItemsState';
+import useHotKeyListeners from '../logic/useHotKeyListeners';
 import { useEffect } from 'react';
 
 const AnimeList = styled.div`
@@ -34,6 +35,11 @@ function App() {
     set_show_blacklisted_anime,
     refresh,
     is_anime_blacklisted
+  });
+
+  useHotKeyListeners({
+    refresh,
+    change_page
   });
 
   useEffect(() => {
