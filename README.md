@@ -6,6 +6,16 @@ It activates when you go to the main website page and replaces the *Airing Anime
 
 ![Screenshot of Augmented Page](docs/screenshot-1.png)
 
+## Installation
+
+Anyone can use this extension as the client is hosted online and uses local storage to record user preferences. Therefore only the extension needs to be installed. To do so, follow these steps:
+
+1. Download the source code as a `.zip` from the most recent version
+2. Extract it somewhere
+3. Go to your chrome extension settings and turn on **Developer mode**
+4. Click the **Load unpacked** button and select the `extension/` folder in the source code
+5. Now the extension should work when going onto [GoGoAnime](https://gogoanimeapp.com/)
+
 ## Architecture
 
 The structure of the application is made up by two parts:
