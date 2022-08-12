@@ -14,6 +14,10 @@ function hashCode(str) {
 }
 
 function hash_anime(name) {
+  if (/ \(Dub\)$/.test(name)) {
+    name = name.split(' ').slice(0, -1).join(' ');
+  }
+
   if (/(E|e)pisode [0-9-]+$/.test(name)) {
     name = name.split(' ').slice(0, -2).join(' ');
   }
