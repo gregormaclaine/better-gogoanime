@@ -18,8 +18,10 @@ export default function useAnimeState({ is_anime_blacklisted }) {
 
   // If there is not enough anime to show, get the next lot
   useEffect(() => {
-    if (anime_to_show.length < 20 && !fetching) fetch_more();
-  }, [anime_to_show, fetching, fetch_more]);
+    if (anime_to_show.length < 20 && !fetching) {
+      fetch_more();
+    }
+  }, [anime_to_show.length, fetching]);
 
   return {
     change_page,

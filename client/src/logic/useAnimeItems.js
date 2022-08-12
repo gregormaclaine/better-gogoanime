@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import get_anime_items from './get_anime_content';
 
 const handle_duplicates = (...arr) =>
@@ -6,10 +6,10 @@ const handle_duplicates = (...arr) =>
     (acc, cur) => {
       if (acc.unique.findIndex(item => item.urlpath === cur.urlpath) === -1)
         acc.unique.push(cur);
-      else acc.had_dups = true;
+      else acc.dups++;
       return acc;
     },
-    { unique: [], had_dups: false }
+    { unique: [], dups: 0 }
   );
 
 class ItemAccumulator {
@@ -57,16 +57,21 @@ class ItemAccumulator {
 async function extend_items(items, start_page) {
   const acc = await ItemAccumulator.from(start_page);
 
-  if (!items.length) return { items: acc.items, page: start_page + 1 };
+  if (!items.length)
+    return { items: acc.items, page: start_page + 1, overlap: false };
 
   while (true) {
-    const { unique, had_dups } = handle_duplicates(items, acc.items);
+    const { unique, dups } = handle_duplicates(items, acc.items);
 
-    if (had_dups) {
+    if (dups) {
       if (unique.length === items.length) {
         await acc.extend('right');
       } else {
-        return { items: unique, page: acc.higher + 1 };
+        return {
+          items: unique,
+          page: acc.higher + 1,
+          overlap: dups % 20 !== 0 // Overlap if duplicates are not in a multiple of 20
+        };
       }
     } else {
       await acc.extend('left');
@@ -84,9 +89,9 @@ async function readjust_items(items) {
   if (!items.length) return acc.items;
 
   while (true) {
-    const { unique, had_dups } = handle_duplicates(acc.items, items);
+    const { unique, dups } = handle_duplicates(acc.items, items);
 
-    if (had_dups) {
+    if (dups) {
       return unique;
     } else {
       await acc.extend('right');
@@ -97,8 +102,11 @@ async function readjust_items(items) {
 export default function useAnimeItems() {
   const [items, set_items] = useState([]);
   const [next_page, set_next_page] = useState(1);
-  const [fetching, set_fetching] = useState(false);
   const [error, set_error] = useState(null);
+
+  const fetchingRef = useRef(false);
+  const fetching = fetchingRef.current;
+  const set_fetching = v => (fetchingRef.current = v);
 
   async function refresh() {
     try {
@@ -117,9 +125,17 @@ export default function useAnimeItems() {
     try {
       if (fetching) return;
       set_fetching(true);
-      const { items: new_items, page } = await extend_items(items, next_page);
+      const {
+        items: new_items,
+        page,
+        overlap
+      } = await extend_items(items, next_page);
       set_items(new_items);
       set_next_page(page);
+      if (overlap) {
+        const newer_items = await readjust_items(items);
+        set_items(newer_items);
+      }
       set_fetching(false);
     } catch (e) {
       console.error(e);
