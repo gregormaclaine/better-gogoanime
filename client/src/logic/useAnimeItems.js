@@ -153,8 +153,12 @@ export default function useAnimeItems() {
         set_items(new_items);
         set_next_page(page);
         if (overlap) {
-          const newer_items = await readjust_items(items);
-          set_items(newer_items);
+          const { items: newer_items, error: e2 } = await readjust_items(items);
+          if (e2) {
+            set_error("Couldn't readjust after fetching more");
+          } else {
+            set_items(newer_items);
+          }
         }
         set_fetching(false);
       }
