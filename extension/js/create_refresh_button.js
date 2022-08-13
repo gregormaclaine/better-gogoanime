@@ -13,4 +13,5 @@
   }
 
   divEl.addEventListener('click', onClick);
+  window.addEventListener('keydown', e => e.key === 'r' && onClick());
 })();

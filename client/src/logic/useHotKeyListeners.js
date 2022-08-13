@@ -3,6 +3,9 @@ import { useEffect } from 'react';
 export default function useHotKeyListeners({ refresh, change_page }) {
   useEffect(() => {
     const listener = e => {
+      // Don't handle hotkeys if shown through iframe
+      if (window.self !== window.top) return;
+
       switch (e.key) {
         case 'r':
           return refresh();
