@@ -26,7 +26,7 @@ const RefreshIcon = styled.img`
   animation: ${RotateAnimation} 2s linear infinite;
 `;
 
-const RefreshItem = React.memo(({ hidden }) => {
+const RefreshItem = React.memo(({ hidden }: { hidden: boolean }) => {
   return (
     <ItemWrapper hidden={hidden}>
       <RefreshIcon src={refresh_icon} />

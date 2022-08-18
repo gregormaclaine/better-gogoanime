@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react';
 
 import useAnimeItems from './useAnimeItems';
 
-export default function useAnimeState({ is_anime_blacklisted }) {
+export default function useAnimeState({
+  is_anime_blacklisted
+}: {
+  is_anime_blacklisted: Function;
+}) {
   const { items, fetching, error, refresh, fetch_more } = useAnimeItems();
 
   const [current_page, change_page] = useState(1);

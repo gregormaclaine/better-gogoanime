@@ -1,8 +1,16 @@
 import { useEffect } from 'react';
 
-export default function useHotKeyListeners({ refresh, change_page }) {
+interface InputType {
+  refresh: Function;
+  change_page: Function;
+}
+
+export default function useHotKeyListeners({
+  refresh,
+  change_page
+}: InputType) {
   useEffect(() => {
-    const listener = e => {
+    const listener = (e: KeyboardEvent) => {
       // Don't handle hotkeys if shown through iframe
       if (window.self !== window.top) return;
 

@@ -1,4 +1,17 @@
-async function get_items(page) {
+type ATag = Element & { href: string; innerText: string };
+
+type PTag = Element & { innerText: string };
+
+type EpisodeReturnVal = number | 'Unknown';
+
+export type PageItem = {
+  name: string;
+  urlpath: string;
+  episode: EpisodeReturnVal;
+  html: string;
+};
+
+async function get_items(page: number): Promise<PageItem[]> {
   const res = await fetch(
     `https://gogoanimeapp.com/page-recent-release.html?page=${page}&type=1`
   );
@@ -14,21 +27,22 @@ async function get_items(page) {
   }
 
   const list_items = [...listEl.children].map(itemEl => {
-    const namelinkEl = itemEl.querySelector('p.name > a');
+    const namelinkEl = itemEl.querySelector('p.name > a') as ATag;
     const urlpath = namelinkEl.href.split('/')[3];
 
     [...itemEl.querySelectorAll('a')].forEach(el => {
       el.href = 'https://gogoanimeapp.com/' + urlpath;
     });
 
-    itemEl.querySelector('div.img > div.type').remove();
+    itemEl.querySelector('div.img > div.type')?.remove();
+
+    const episodeEl = itemEl.querySelector('p.episode') as PTag;
 
     return {
       name: namelinkEl.innerText,
       urlpath,
-      episode:
-        parseInt(itemEl.querySelector('p.episode').innerText.split(' ')[1]) ||
-        'Unknown',
+      episode: (parseInt(episodeEl.innerText.split(' ')[1]) ||
+        'Unknown') as EpisodeReturnVal,
       html: itemEl.innerHTML
     };
   });
@@ -39,12 +53,17 @@ async function get_items(page) {
 }
 
 const CACHE_TIME = 1000 * 60;
-const cache = {};
+const cache: {
+  [key: number]: { time: Date; data: PageItem[] };
+} = {};
 
-async function cached_get_items(page, force = false) {
+async function cached_get_items(page: number, force: boolean = false) {
   const { time, data } = cache[page] || {};
 
-  if (!force && time && new Date() - time < CACHE_TIME) return data;
+  if (!force && time) {
+    const time_dif = new Date().getTime() - time.getTime();
+    if (time_dif < CACHE_TIME) return data;
+  }
 
   const result = await get_items(page);
   cache[page] = { data: result, time: new Date() };
@@ -53,10 +72,10 @@ async function cached_get_items(page, force = false) {
 
 let fetching = false;
 
-async function single_runner(...args) {
+async function single_runner(page: number, force: boolean = false) {
   if (fetching) return null;
   fetching = true;
-  const result = await cached_get_items(...args);
+  const result = await cached_get_items(page, force);
   fetching = false;
   return result;
 }

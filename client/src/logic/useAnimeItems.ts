@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import get_anime_items from './get_anime_content';
+import get_anime_items, { PageItem } from './get_anime_content';
 
-const handle_duplicates = (...arr) =>
+type DupInitVal = { unique: PageItem[]; dups: number };
+
+const handle_duplicates = (...arr: PageItem[][]) =>
   arr.flat().reduce(
     (acc, cur) => {
       if (acc.unique.findIndex(item => item.urlpath === cur.urlpath) === -1)
@@ -9,11 +11,17 @@ const handle_duplicates = (...arr) =>
       else acc.dups++;
       return acc;
     },
-    { unique: [], dups: 0 }
+    { unique: [], dups: 0 } as DupInitVal
   );
 
 class ItemAccumulator {
-  constructor(start_page, start_data, force) {
+  fetch_cancelled: boolean;
+  force: boolean;
+  lower: number;
+  higher: number;
+  accumulate: { [key: number]: PageItem[] };
+
+  constructor(start_page: number, start_data?: PageItem[], force?: boolean) {
     if (!start_data) {
       throw new Error(
         'Data for first page should be precollected - Use ItemAccumulator.from() instead'
@@ -22,7 +30,7 @@ class ItemAccumulator {
 
     this.fetch_cancelled = false;
 
-    this.force = force;
+    this.force = force || false;
 
     this.lower = start_page;
     this.higher = start_page;
@@ -30,7 +38,7 @@ class ItemAccumulator {
     this.accumulate = { [start_page]: start_data };
   }
 
-  static async from(page, force = false) {
+  static async from(page: number, force: boolean = false) {
     const items = await get_anime_items(page, force);
     if (!items) return ItemAccumulator.cancelled();
     return new ItemAccumulator(page, items, force);
@@ -51,21 +59,28 @@ class ItemAccumulator {
     return arr;
   }
 
-  async extend(dir) {
+  async extend(dir: 'left' | 'right') {
     const page = dir === 'right' ? this.higher + 1 : this.lower - 1;
     if (page < 1) throw new Error(`Tried to fetch page ${page} from api`);
-    this.accumulate[page] = await get_anime_items(page, this.force);
-    if (!this.accumulate[page]) this.fetch_cancelled = true;
+    const result = await get_anime_items(page, this.force);
+    if (!result) return (this.fetch_cancelled = true);
+    this.accumulate[page] = result;
     dir === 'right' ? this.higher++ : this.lower--;
   }
 }
 
 /**
  * Call the api to get a new page of items to increase the current list
- * @param {Array} items The current array of anime items
- * @param {Number} start_page The first page of the api expected to have new items
+ * @param {PageItem[]} items The current array of anime items
+ * @param {number} start_page The first page of the api expected to have new items
  */
-async function extend_items(items, start_page) {
+async function extend_items(
+  items: PageItem[],
+  start_page: number
+): Promise<
+  | { error: true }
+  | { error?: false; items: PageItem[]; page: number; overlap: boolean }
+> {
   const acc = await ItemAccumulator.from(start_page);
 
   if (!items.length)
@@ -95,7 +110,9 @@ async function extend_items(items, start_page) {
  * Get the api's first pages until the item array is up to date with the most recent items
  * @param {Array} items The current array of anime items
  */
-async function readjust_items(items) {
+async function readjust_items(
+  items: PageItem[]
+): Promise<{ error: true } | { error?: false; items: PageItem[] }> {
   const acc = await ItemAccumulator.from(1, true);
 
   if (!items.length) return { items: acc.items };
@@ -113,26 +130,26 @@ async function readjust_items(items) {
 }
 
 export default function useAnimeItems() {
-  const [items, set_items] = useState([]);
+  const [items, set_items] = useState<PageItem[]>([]);
   const [next_page, set_next_page] = useState(1);
-  const [error, set_error] = useState(null);
+  const [error, set_error] = useState<string | Error | null>(null);
   const [fetching, set_fetching] = useState(false);
 
   async function refresh() {
     try {
       if (fetching) return;
       set_fetching(true);
-      const { items: new_items, error: e } = await readjust_items(items);
+      const result = await readjust_items(items);
 
-      if (!e) {
-        set_items(new_items);
+      if (!result.error) {
+        set_items(result.items);
         set_fetching(false);
       } else {
         set_error("Couldn't refresh");
       }
     } catch (e) {
       console.error(e);
-      set_error(e);
+      set_error(e as Error);
     }
   }
 
@@ -140,31 +157,26 @@ export default function useAnimeItems() {
     try {
       if (fetching) return;
       set_fetching(true);
-      const {
-        items: new_items,
-        page,
-        overlap,
-        error: e
-      } = await extend_items(items, next_page);
+      const result = await extend_items(items, next_page);
 
-      if (e) {
+      if (result.error) {
         set_error("Could't fetch more anime");
       } else {
-        set_items(new_items);
-        set_next_page(page);
-        if (overlap) {
-          const { items: newer_items, error: e2 } = await readjust_items(items);
-          if (e2) {
+        set_items(result.items);
+        set_next_page(result.page);
+        if (result.overlap) {
+          const readjust_result = await readjust_items(items);
+          if (readjust_result.error) {
             set_error("Couldn't readjust after fetching more");
           } else {
-            set_items(newer_items);
+            set_items(readjust_result.items);
           }
         }
         set_fetching(false);
       }
     } catch (e) {
       console.error(e);
-      set_error(e);
+      set_error(e as Error);
     }
   }
 

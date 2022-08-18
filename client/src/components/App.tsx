@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect } from 'react';
 import styled from 'styled-components';
 import useAnimePreferences from '../logic/useAnimePreferences';
@@ -47,7 +48,7 @@ function App() {
     window.parent.postMessage(
       {
         action: 'set-height',
-        height: document.querySelector('html').offsetHeight + 'px'
+        height: document.querySelector('html')?.offsetHeight + 'px'
       },
       '*'
     );
@@ -55,7 +56,11 @@ function App() {
 
   return (
     <div>
-      {error && <p style={{ color: 'red' }}>An error has occured: {error}</p>}
+      {error && (
+        <p style={{ color: 'red' }}>
+          <>An error has occured: {error}</>
+        </p>
+      )}
       <AnimeList>
         <RefreshItem hidden={!is_refreshing} />
         {anime_to_show.map(item => (
