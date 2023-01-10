@@ -5,14 +5,21 @@ export default function useIFrameMessenging({
   set_show_blacklisted_anime,
   refresh,
   is_anime_blacklisted
+}: {
+  change_page: Function;
+  set_show_blacklisted_anime: Function;
+  refresh: Function;
+  is_anime_blacklisted: (val: string) => boolean;
 }) {
-  useIFrameMessage('change-page', page => change_page(page));
+  useIFrameMessage('change-page', (page: number) => change_page(page));
 
-  useIFrameMessage('toggle-blacklist', val => set_show_blacklisted_anime(val));
+  useIFrameMessage('toggle-blacklist', (val: boolean) =>
+    set_show_blacklisted_anime(val)
+  );
 
   useIFrameMessage('refresh', refresh);
 
-  useIFrameMessage('get-blacklist-info', (list, reply) =>
+  useIFrameMessage('get-blacklist-info', (list: string[], reply: Function) =>
     reply({
       action: 'get-blacklist-info-reply',
       info: list.reduce(

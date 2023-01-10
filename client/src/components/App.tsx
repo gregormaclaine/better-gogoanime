@@ -1,10 +1,12 @@
+import React from 'react';
+import { useEffect } from 'react';
 import styled from 'styled-components';
+import useAnimePreferences from '../logic/useAnimePreferences';
+import useAnimeState from '../logic/useAnimeState';
+import useHotKeyListeners from '../logic/useHotKeyListeners';
+import useIFrameMessenging from '../logic/useIFrameMessenging';
 import AnimeItem from './AnimeItem';
 import RefreshItem from './RefreshItem';
-import useIFrameMessenging from '../logic/useIFrameMessenging';
-import useAnimePreferences from '../logic/useAnimePreferences';
-import useAnimeItemsState from '../logic/useAnimeItemsState';
-import { useEffect } from 'react';
 
 const AnimeList = styled.div`
   width: 726px;
@@ -22,12 +24,12 @@ function App() {
 
   const {
     anime_to_show,
-    fetch_status,
+    error,
     change_page,
     set_show_blacklisted_anime,
     refresh,
     is_refreshing
-  } = useAnimeItemsState({ is_anime_blacklisted });
+  } = useAnimeState({ is_anime_blacklisted });
 
   useIFrameMessenging({
     change_page,
@@ -36,12 +38,17 @@ function App() {
     is_anime_blacklisted
   });
 
+  useHotKeyListeners({
+    refresh,
+    change_page
+  });
+
   useEffect(() => {
     if (!window.parent) return;
     window.parent.postMessage(
       {
         action: 'set-height',
-        height: document.querySelector('html').offsetHeight + 'px'
+        height: document.querySelector('html')?.offsetHeight + 'px'
       },
       '*'
     );
@@ -49,9 +56,13 @@ function App() {
 
   return (
     <div>
-      {fetch_status === 'error' && (
-        <p style={{ color: 'red' }}>An error has occured</p>
-      )}
+      <>
+        {error && (
+          <p style={{ color: 'red' }}>
+            <>An error has occured: {error}</>
+          </p>
+        )}
+      </>
       <AnimeList>
         <RefreshItem hidden={!is_refreshing} />
         {anime_to_show.map(item => (

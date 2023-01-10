@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from 'styled-components';
 import cross_icon_img from '../img/cross.svg';
 import tick_icon_img from '../img/tick.svg';
@@ -26,7 +27,7 @@ const Icon = styled.img`
   }
 `;
 
-const AnimeItemWrapper = styled.div`
+const AnimeItemWrapper = styled.div<{ blacklisted: boolean }>`
   position: relative;
   width: 23.5849%;
   text-align: center;
@@ -92,6 +93,14 @@ function AnimeItem({
   blacklisted,
   blacklist_item,
   unblacklist_item
+}: {
+  name: string;
+  episode: number | 'Unknown';
+  urlpath: string;
+  html: string;
+  blacklisted: boolean;
+  blacklist_item: Function;
+  unblacklist_item: Function;
 }) {
   function onClick() {
     if (blacklisted) unblacklist_item(name);
