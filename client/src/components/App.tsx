@@ -56,11 +56,13 @@ function App() {
 
   return (
     <div>
-      {error && (
-        <p style={{ color: 'red' }}>
-          <>An error has occured: {error}</>
-        </p>
-      )}
+      <>
+        {error && (
+          <p style={{ color: 'red' }}>
+            <>An error has occured: {error}</>
+          </p>
+        )}
+      </>
       <AnimeList>
         <RefreshItem hidden={!is_refreshing} />
         {anime_to_show.map(item => (

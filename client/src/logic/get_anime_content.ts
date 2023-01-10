@@ -1,7 +1,5 @@
 type ATag = Element & { href: string; innerText: string };
-
 type PTag = Element & { innerText: string };
-
 type EpisodeReturnVal = number | 'Unknown';
 
 export type PageItem = {
@@ -11,7 +9,13 @@ export type PageItem = {
   html: string;
 };
 
-async function get_items(page: number): Promise<PageItem[]> {
+export type Page = {
+  error?: false;
+  num: number;
+  items: PageItem[];
+};
+
+async function get_items(page: number): Promise<Page> {
   const res = await fetch(
     `https://gogoanimeapp.com/page-recent-release.html?page=${page}&type=1`
   );
@@ -23,7 +27,7 @@ async function get_items(page: number): Promise<PageItem[]> {
   if (!listEl) {
     console.warn("Caught Error: Couldn't get anime content");
     console.warn('\tResponse Content:', el.innerHTML);
-    return [];
+    throw new Error("Couldn't get anime content for page " + page);
   }
 
   const list_items = [...listEl.children].map(itemEl => {
@@ -49,35 +53,7 @@ async function get_items(page: number): Promise<PageItem[]> {
 
   el.remove();
 
-  return list_items;
+  return { num: page, items: list_items };
 }
 
-const CACHE_TIME = 1000 * 60;
-const cache: {
-  [key: number]: { time: Date; data: PageItem[] };
-} = {};
-
-async function cached_get_items(page: number, force: boolean = false) {
-  const { time, data } = cache[page] || {};
-
-  if (!force && time) {
-    const time_dif = new Date().getTime() - time.getTime();
-    if (time_dif < CACHE_TIME) return data;
-  }
-
-  const result = await get_items(page);
-  cache[page] = { data: result, time: new Date() };
-  return result;
-}
-
-let fetching = false;
-
-async function single_runner(page: number, force: boolean = false) {
-  if (fetching) return null;
-  fetching = true;
-  const result = await cached_get_items(page, force);
-  fetching = false;
-  return result;
-}
-
-export default single_runner;
+export default get_items;
